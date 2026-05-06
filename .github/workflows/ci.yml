@@ -24,6 +24,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Debug estrutura
+        run: |
+          echo "=== Arquivos na raiz ==="
+          ls -la
+          echo "=== Arquivos em tests/ ==="
+          ls -la tests/
+          echo "=== Conteúdo do test_cleaning.py ==="
+          cat tests/test_cleaning.py
+          echo "=== Python path ==="
+          python -c "import sys; print('\n'.join(sys.path))"
+
       - name: Rodar testes
         run: |
-          python -m pytest tests/ -v
+          python -m pytest tests/ -v --tb=long
