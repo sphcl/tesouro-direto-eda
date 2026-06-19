@@ -1,39 +1,30 @@
-import pandas as pd
+import logging
 from pathlib import Path
 
+import pandas as pd
 
-RAW_DATA_PATH = Path("data/raw/PrecoTaxaTesouroDireto.csv")
+from src.config import RAW_DATA_PATH
+
+logger = logging.getLogger(__name__)
 
 
 def load_raw_data(filepath: Path = RAW_DATA_PATH) -> pd.DataFrame:
     """
-    Lê o CSV do Tesouro Direto e retorna um DataFrame bruto.
-
-    Args:
-        filepath: Caminho para o arquivo .csv
-
-    Returns:
-        DataFrame com os dados brutos, sem nenhuma transformação.
+    Lê o CSV do Tesouro Direto e retorna um DataFrame bruto, sem transformações.
 
     Raises:
-        FileNotFoundError: Se o arquivo não existir no caminho informado.
+        FileNotFoundError: se o arquivo não existir no caminho informado.
     """
     if not filepath.exists():
         raise FileNotFoundError(
-            f"Arquivo não encontrado: {filepath}\n"
-            "Baixe os dados em: https://www.tesourotransparente.gov.br/ckan/dataset/"
+            f"Arquivo não encontrado: {filepath}. Baixe em: "
+            "https://www.tesourotransparente.gov.br/ckan/dataset/"
             "taxas-dos-titulos-ofertados-pelo-tesouro-direto"
         )
 
-    print(f"[ingestion] Carregando dados de: {filepath}")
+    logger.info("Carregando dados de %s", filepath)
 
-    df = pd.read_csv(
-        filepath,
-        sep=";",
-        decimal=",",
-        encoding="latin-1",
-        dayfirst=True,
-    )
+    df = pd.read_csv(filepath, sep=";", decimal=",", encoding="latin-1", dayfirst=True)
 
-    print(f"[ingestion] Dados carregados: {df.shape[0]} linhas, {df.shape[1]} colunas")
+    logger.info("Dados carregados: %d linhas, %d colunas", *df.shape)
     return df

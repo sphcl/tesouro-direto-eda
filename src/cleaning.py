@@ -1,81 +1,54 @@
-"""
-cleaning.py — Responsável por limpar e padronizar os dados brutos.
-Recebe o DataFrame cru e retorna um DataFrame pronto para análise.
-"""
+import logging
 
 import pandas as pd
 
+from src.config import COLUMN_MAPPING, ESSENTIAL_COLUMNS
 
-# Mapeamento dos nomes originais das colunas para nomes padronizados
-COLUMN_MAPPING = {
-    "Tipo Titulo": "tipo_titulo",
-    "Data Vencimento": "data_vencimento",
-    "Data Base": "data_base",
-    "Taxa Compra Manha": "taxa_compra",
-    "Taxa Venda Manha": "taxa_venda",
-    "PU Compra Manha": "pu_compra",
-    "PU Venda Manha": "pu_venda",
-    "PU Base Manha": "pu_base",
-}
+logger = logging.getLogger(__name__)
 
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Renomeia colunas para o padrão snake_case do projeto."""
-    df = df.rename(columns=COLUMN_MAPPING)
-    print(f"[cleaning] Colunas renomeadas: {list(df.columns)}")
-    return df
+    """Renomeia colunas para snake_case conforme COLUMN_MAPPING."""
+    return df.rename(columns=COLUMN_MAPPING)
 
 
 def drop_invalid_rows(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove linhas onde as colunas essenciais são nulas."""
-    essential_cols = ["tipo_titulo", "data_base", "taxa_compra", "taxa_venda"]
+    """Remove linhas com valores nulos em colunas essenciais."""
     before = len(df)
-    df = df.dropna(subset=essential_cols)
-    removed = before - len(df)
-    print(f"[cleaning] Linhas removidas por valores nulos: {removed}")
+    df = df.dropna(subset=ESSENTIAL_COLUMNS)
+    logger.info("Linhas removidas por valores nulos: %d", before - len(df))
     return df
 
 
 def convert_dtypes(df: pd.DataFrame) -> pd.DataFrame:
-    """Converte colunas para os tipos corretos."""
+    """Converte colunas de data e numéricas para os tipos corretos."""
     df["data_base"] = pd.to_datetime(df["data_base"], dayfirst=True, errors="coerce")
     df["data_vencimento"] = pd.to_datetime(df["data_vencimento"], dayfirst=True, errors="coerce")
 
     numeric_cols = ["taxa_compra", "taxa_venda", "pu_compra", "pu_venda", "pu_base"]
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors="coerce")
 
-    print("[cleaning] Tipos convertidos com sucesso")
     return df
 
 
 def add_derived_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Cria colunas derivadas úteis para análise."""
+    """Adiciona colunas derivadas: spread, ano, mês e ano_mes."""
     df["spread"] = df["taxa_compra"] - df["taxa_venda"]
     df["ano"] = df["data_base"].dt.year
     df["mes"] = df["data_base"].dt.month
     df["ano_mes"] = df["data_base"].dt.to_period("M")
-    print("[cleaning] Colunas derivadas adicionadas: spread, ano, mes, ano_mes")
     return df
 
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Pipeline completo de limpeza.
-    Orquestra todas as etapas de limpeza em sequência.
+    """Executa o pipeline completo de limpeza sobre o DataFrame bruto."""
+    logger.info("Iniciando pipeline de limpeza")
 
-    Args:
-        df: DataFrame bruto vindo da ingestão.
-
-    Returns:
-        DataFrame limpo e pronto para análise.
-    """
-    print("[cleaning] Iniciando pipeline de limpeza...")
     df = rename_columns(df)
     df = drop_invalid_rows(df)
     df = convert_dtypes(df)
     df = add_derived_columns(df)
     df = df.reset_index(drop=True)
-    print(f"[cleaning] Pipeline concluído. Shape final: {df.shape}")
+
+    logger.info("Pipeline de limpeza concluído. Shape final: %s", df.shape)
     return df
