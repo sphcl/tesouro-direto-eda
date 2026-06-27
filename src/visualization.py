@@ -19,17 +19,16 @@ def _slugify(titulo: str) -> str:
     return titulo.lower().replace(" ", "_")
 
 
-def _save_figure(filename: str) -> None:
-    """Salva a figura atual em outputs/figures/ e fecha o plot."""
+def _save_figure(fig: plt.Figure, filename: str) -> None:
+    """Salva a figura no disco em outputs/figures/."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     filepath = OUTPUT_DIR / filename
-    plt.savefig(filepath, dpi=150, bbox_inches="tight")
+    fig.savefig(filepath, dpi=150, bbox_inches="tight")
     logger.info("Gráfico salvo em %s", filepath)
-    plt.close()
 
 
-def plot_taxa_evolution(df: pd.DataFrame, titulo: str) -> None:
-    """Plota e salva a evolução da taxa de venda ao longo do tempo."""
+def plot_taxa_evolution(df: pd.DataFrame, titulo: str) -> plt.Figure:
+    """Plota a evolução da taxa de venda ao longo do tempo. Retorna a figura."""
     fig, ax = plt.subplots(figsize=FIGSIZE_DEFAULT)
 
     ax.plot(df["data_base"], df["taxa_venda"], linewidth=1.5, color="#2563eb")
@@ -38,13 +37,14 @@ def plot_taxa_evolution(df: pd.DataFrame, titulo: str) -> None:
     ax.set_ylabel("Taxa de Venda (% a.a.)")
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     ax.xaxis.set_major_locator(mdates.YearLocator())
-    plt.xticks(rotation=45)
+    fig.autofmt_xdate(rotation=45)
 
-    _save_figure(f"taxa_evolution_{_slugify(titulo)}.png")
+    _save_figure(fig, f"taxa_evolution_{_slugify(titulo)}.png")
+    return fig
 
 
-def plot_spread_medio(df: pd.DataFrame) -> None:
-    """Plota e salva o spread médio por título em gráfico de barras horizontal."""
+def plot_spread_medio(df: pd.DataFrame) -> plt.Figure:
+    """Plota o spread médio por título em gráfico de barras horizontal. Retorna a figura."""
     fig, ax = plt.subplots(figsize=(10, 5))
 
     sns.barplot(data=df, x="spread_medio", y="tipo_titulo", palette="Blues_d", ax=ax)
@@ -52,11 +52,12 @@ def plot_spread_medio(df: pd.DataFrame) -> None:
     ax.set_xlabel("Spread Médio (p.p.)")
     ax.set_ylabel("")
 
-    _save_figure("spread_medio_por_titulo.png")
+    _save_figure(fig, "spread_medio_por_titulo.png")
+    return fig
 
 
-def plot_sazonalidade(df: pd.DataFrame, titulo: str) -> None:
-    """Plota e salva a taxa média por mês do ano para identificar sazonalidade."""
+def plot_sazonalidade(df: pd.DataFrame, titulo: str) -> plt.Figure:
+    """Plota a taxa média por mês do ano. Retorna a figura."""
     fig, ax = plt.subplots(figsize=FIGSIZE_DEFAULT)
 
     sns.barplot(data=df, x="mes", y="taxa_media", palette="coolwarm", ax=ax)
@@ -66,4 +67,5 @@ def plot_sazonalidade(df: pd.DataFrame, titulo: str) -> None:
     ax.set_xticks(range(12))
     ax.set_xticklabels(MESES_PT)
 
-    _save_figure(f"sazonalidade_{_slugify(titulo)}.png")
+    _save_figure(fig, f"sazonalidade_{_slugify(titulo)}.png")
+    return fig
