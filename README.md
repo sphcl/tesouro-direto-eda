@@ -19,7 +19,6 @@ e insights de negócio.
 - [Como rodar](#como-rodar)
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Insights encontrados](#insights-encontrados)
-- [Roadmap](#roadmap)
 
 ---
 
