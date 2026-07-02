@@ -15,6 +15,7 @@ data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 
+outputs/insights.md
 outputs/figures/*
 !outputs/figures/.gitkeep
 
@@ -26,3 +27,5 @@ outputs/figures/*
 
 .vscode/settings.json
 .vscode/launch.json
+
+.streamlit/secrets.toml

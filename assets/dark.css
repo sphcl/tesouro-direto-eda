@@ -1,0 +1,24 @@
+.stApp, .main                          { background-color: #0f172a; }
+.stApp h1, .stApp h2, .stApp h3       { color: #f1f5f9; }
+.stApp p, .stApp span, .stApp label,
+.stApp li, .stApp div, .stMarkdown p  { color: #f1f5f9; }
+
+section[data-testid="stSidebar"]      { background-color: #1e293b; }
+section[data-testid="stSidebar"] *    { color: #f1f5f9; }
+
+[data-testid="metric-container"]      { background-color: #1e293b;
+                                        border: 1px solid #334155;
+                                        border-radius: 8px;
+                                        padding: 12px; }
+[data-testid="metric-container"] *    { color: #f1f5f9; }
+
+.stSelectbox > div > div,
+.stDateInput  > div > div             { background-color: #1e293b;
+                                        border-color: #334155;
+                                        color: #f1f5f9; }
+
+[data-testid="stAlert"]               { background-color: #1e293b;
+                                        border-color: #334155; }
+[data-testid="stAlert"] p             { color: #f1f5f9; }
+
+hr                                    { border-color: #334155; }
