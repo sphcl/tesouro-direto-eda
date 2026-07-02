@@ -6,6 +6,8 @@ a cada interação do usuário.
 """
 
 from functools import lru_cache
+from typing import Optional
+from datetime import date
 
 import pandas as pd
 
@@ -30,9 +32,18 @@ def list_titulos() -> list[str]:
     return get_titulos_disponiveis(get_clean_dataset())
 
 
-def taxa_evolution_for(titulo: str) -> pd.DataFrame:
-    """Retorna a série de evolução de taxa para um título escolhido pelo usuário."""
-    return get_taxa_evolution(get_clean_dataset(), titulo)
+def taxa_evolution_for(
+    titulo: str,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+) -> pd.DataFrame:
+    """Retorna a evolução de taxa para um título, com filtro de período opcional."""
+    df = get_taxa_evolution(get_clean_dataset(), titulo)
+    if start_date is not None:
+        df = df[df["data_base"] >= pd.Timestamp(start_date)]
+    if end_date is not None:
+        df = df[df["data_base"] <= pd.Timestamp(end_date)]
+    return df
 
 
 def spread_medio() -> pd.DataFrame:
@@ -41,5 +52,5 @@ def spread_medio() -> pd.DataFrame:
 
 
 def sazonalidade_for(titulo: str) -> pd.DataFrame:
-    """Retorna a sazonalidade mensal para um título escolhido pelo usuário."""
+    """Retorna a sazonalidade mensal para um título."""
     return get_sazonalidade(get_clean_dataset(), titulo)
